@@ -1,0 +1,278 @@
+# Tahsin Can Sarlak and Shena Mackay
+# Tufts University -Advanced Robotics (ME-180)
+# Robotic arm that writes initials
+# 10/2/2019
+
+
+# Imports the library to do necessary math
+
+import numpy as np
+
+import math
+
+# Imports the necessary libraries to use
+
+from adafruit_servokit import ServoKit
+
+import time
+
+# Sets the servo driver
+
+kit = ServoKit(channels=16)
+
+# Contains necesarry equations for writing letter T
+
+def letter_t():
+        
+    #set number of points per letter - use even numbers
+    n = 30
+    
+    #Define letter vectors, normalized to 1 about origin
+    
+    t1x = np.arange(-0.5*n, 0.5*(n+1))
+    t1x = t1x/n
+    t1y = np.zeros(n+1) + 2*n
+    t1y = t1y/n
+    t2x = np.zeros(n+1)
+    t2x = t2x/n
+    t2y = np.arange(2*n+1, 0, -2)
+    t2y = t2y/n
+    
+    t1x = t1x/1.5+0.5
+    t1y = t1y/3+0.5
+    t2x = t2x/1.5+0.5
+    t2y = t2y/3+0.5
+    
+    # Calls the function with each element in x and y array
+    for i in range(len(t1x)):
+        
+        get_angles(t1x[i],t1y[i])
+        
+        # Makes sure the pen goes down as soon as it starts writing
+        if(i==2):
+            pen_down()
+       
+    for i in range(len(t2x)):
+        get_angles(t2x[i],t2y[i])
+    
+    # Moves the pen up since the letter is done
+    pen_up()  
+    
+# Contains necesarry equations for writing letter M
+def letter_m():
+            
+    #set number of points per letter - use even numbers
+    n = 30
+    
+    #Define letter vectors, normalized to 1 about origin
+
+    m1x = np.zeros(n+1) - 1.25*n
+    m1x = m1x/n
+    m1y = np.arange(0, 2*n+1, 2)
+    m1y = m1y/n
+    m2x = np.arange(-1.25*n, 1, 1.25)
+    m2x = m2x/n
+    m2y = .75-m2x
+    m3x = np.arange(0, 1.25*n+1, 1.25)
+    m3x = m3x/n 
+    m3y = 0.75 + m3x 
+    m4x = np.zeros( n+1) + 1.25*n
+    m4x = m4x/n
+    m4y = np.arange(2*n+1, 0, -2)
+    m4y = m4y/n
+    
+    m1x = m1x/2+2.5
+    m1y = m1y/2+0.5
+    m2x = m2x/4+2.5
+    m2y = m2y/2+0.5
+    m3x = m3x/4+2.5
+    m3y = m3y/2+0.5
+    m4x = m4x/4+2.5
+    m4y = m4y/2+0.5
+
+     # Calls the function with each element in x and y array
+    for i in range(len(m1x)):
+        get_angles(m1x[i],m1y[i])
+        
+        # Makes sure the pen goes down as soon as it starts writing
+        if(i==2):
+            pen_down()
+            
+    for i in range(len(m2x)):
+        get_angles(m2x[i],m2y[i])
+               
+    for i in range(len(m3x)):
+        get_angles(m3x[i],m3y[i])
+        
+    for i in range(len(m4x)):
+        get_angles(m4x[i],m4y[i]) 
+     
+    # Moves the pen up since the letter is done
+    pen_up()
+
+# Contains necesarry equations for writing letter S
+def fancy_s():
+        
+    #set number of points per letter - use even numbers
+    n = 30
+    
+    #Define letter vectors, normalized to 1 about origin
+    
+    s1x = np.zeros((n+1)) - 2
+    s1y = np.arange(n, 4*n+1, 3)
+    s1y = s1y/n
+    
+    s2x = np.zeros((n+1))
+    s2y = np.arange(1.5*n, 3.5*n+1, 2)
+    s2y = s2y/n
+    
+    s3x = np.zeros((n+1)) + 2
+    s3y = s1y
+    
+    s4x = s3x
+    s4y = np.arange(-1*n, -1*(4*n+1), -3)
+    s4y = s4y/n
+    
+    s5x = s2x
+    s5y = -1*s2y
+    
+    s6x = s1x
+    s6y = s4y
+    
+    s7x = np.arange(-2*n, 1, 2)
+    s7x = s7x/n
+    s7y = 6.5 + 1.25*s7x
+    
+    s8x = np.arange(0, 2*n+1, 2)
+    s8x = s8x/n
+    s8y = 6.5 - 1.25*s8x
+    
+    s9x = np.arange(2*n, -1, -2)
+    s9x = s9x/n
+    s9y = -6.5 + 1.25*s9x
+    
+    s10x = np.arange(0, -2*n-1, -2)
+    s10x = s10x/n
+    s10y = -6.5 - 1.25*s10x
+    
+    s11x = s7x
+    s11y = -1.5-1.25*s11x
+    
+    s12x = s8x
+    s12y = 1.5-1.25*s12x
+    
+    s13x = np.arange(1.1, 2, 0.9*n)
+    s13y = -1+s13x
+    
+    s14x = np.arange(-2, -1.1, 0.9*n)
+    s14y = 1+s14x
+    
+    # Divides the movement into two and puts the x and y coordinates of each 
+    # move into an array 
+    sx_1 = np.concatenate((s5x,s11x,s1x,s7x,s8x,s3x,s13x))
+    sy_1 = np.concatenate((s5y,s11y,s1y,s7y,s8y,s3y,s13y))
+    
+    # Scales them
+    sx_1 = sx_1/6+1.25
+    sy_1 = sy_1/6+1
+    
+    sx_2 = np.concatenate((s2x,s12x,s4x,s9x,s10x,s6x,s14x))
+    sy_2 = np.concatenate((s2y,s12y,s4y,s9y,s10y,s6y,s14y))
+    
+    sx_2 = sx_2/6+1.25
+    sy_2 = sy_2/6+1
+    
+    # Calls the function with each element in x and y array
+    for i in range(len(sx_1)):
+        get_angles(sx_1[i],sy_1[i])
+        
+        # Makes sure the pen goes down as soon as it starts writing
+        if(i==2):
+            pen_down()
+            
+    pen_up()      
+    
+    for i in range(len(sx_1)):
+        get_angles(sx_2[i],sy_2[i])
+        
+        if(i==2):
+            pen_down()
+    
+    # Moves the pen up since the letter is done        
+    pen_up()
+
+    
+
+# Does the math from class and finds the angles
+        
+def get_angles(x,y):
+    
+    c2 = ((x**2 + y**2 - l1**2 - l2**2)/(2*l1*l2))
+    
+    s2 = np.sqrt(1-c2**2)
+
+    
+    alpha2 = math.atan2(s2,c2)
+    
+    if(x==0 and y==0):
+        x= 0.01
+        
+    c1 = ((l1+l2*c2)*x + (l2*s2*y))/(x**2+y**2)
+
+    s1 = ((l1+l2*c2)*y - (l2*s2*x))/(x**2+y**2)
+
+    alpha1 = math.atan2(s1,c1)
+
+    # Converts radians to degrees to write on the servos
+    alpha1 = np.degrees(alpha1)
+
+    alpha2 = np.degrees(alpha2)
+
+    # Puts time between each move
+    time.sleep(sleep_time)
+    
+    # Writes the angles to alphas by scaling
+    kit.servo[6].angle = alpha1 + 90
+
+    kit.servo[1].angle = 180-alpha2 
+
+# puts the pen down 
+
+def pen_down():
+    
+   kit.servo[2].angle = 90
+   
+
+# moves the pen up
+
+def pen_up():
+
+    kit.servo[2].angle = 45
+    
+  
+# Moves pen up then down
+def up_down():
+  
+    pen_up()
+    time.sleep(sleep_time)
+    pen_down()
+ 
+# Main part of the code that calls necessary functions
+
+# Seconds between each move
+sleep_time = .1
+
+# size of arms
+l1=1.75
+l2=2
+
+# Moves pen up then calls the necessarry letter functions
+pen_up()
+letter_t()
+
+pen_up()
+letter_m()
+
+pen_up()
+fancy_s()
+
